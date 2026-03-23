@@ -9,11 +9,14 @@ pinned: false
 license: mit
 ---
 
+<!-- Hugging Face Spaces configuration above -->
+
 # 🎧 VoxPDF – PDF to Audiobook Generator
 
 A robust, full-stack web application that converts PDF documents into **natural-sounding audiobooks** using an asynchronous processing pipeline.
 
-Built to handle the *messy reality of PDFs*—including inconsistent formatting, repeating headers, spaced-out text, and structural noise—this project focuses on **stability, scalability, and real-world usability**, not just ideal cases.
+🌐 **Live Demo:**  
+👉 https://huggingface.co/spaces/legophil101/VoxPDF
 
 ---
 
@@ -23,35 +26,43 @@ PDFs are designed for visual layout—not for listening.
 
 This project transforms PDFs into a **single continuous audiobook**, while intelligently handling:
 
-* Broken formatting
-* Repeating headers/footers
-* Inconsistent chapter structures
-* Hidden artifacts that break TTS
+- Broken formatting  
+- Repeating headers/footers  
+- Inconsistent chapter structures  
+- Hidden artifacts that break TTS  
 
-Instead of aiming for perfect parsing (which is unrealistic), the system is designed for **robust, end-to-end processing that works reliably on real documents**.
+Instead of aiming for perfect parsing (which is unrealistic), this system focuses on **robustness, stability, and real-world usability**.
+
+---
+
+## 🎥 Demo Flow
+
+1. Upload a PDF  
+2. Wait on the live progress page  
+3. Download your audiobook  
 
 ---
 
 ## 🚀 Key Features
 
-* 📄 **PDF Upload via Web Interface**
-* 🧠 **Intelligent Text Extraction Engine**
-* 🔊 **Text-to-Speech Pipeline (Edge-TTS)**
-* ⚡ **Asynchronous Background Processing (Non-blocking)**
-* 📊 **Real-Time Progress Tracking (Polling)**
-* 🎧 **Single Final Audiobook Output**
-* 🧹 **Automatic Temporary File Cleanup**
-* 🧱 **Job-Based Isolation for Multi-User Safety**
+- 📄 **PDF Upload via Web Interface**
+- 🧠 **Intelligent Text Extraction Engine**
+- 🔊 **Text-to-Speech Pipeline (Edge-TTS)**
+- ⚡ **Asynchronous Background Processing (Non-blocking)**
+- 📊 **Real-Time Progress Tracking (Polling)**
+- 🎧 **Single Continuous Audiobook Output**
+- 🧹 **Automatic Temporary File Cleanup**
+- 🧱 **Job-Based Isolation for Multi-User Safety**
 
 ---
 
 ## ⚙️ Tech Stack
 
 | Layer            | Technology                               |
-| ---------------- | ---------------------------------------- |
+|------------------|------------------------------------------|
 | Backend          | Python, Flask, Threading                 |
 | PDF Processing   | pdfplumber, Advanced Regex               |
-| TTS Engine       | Microsoft Edge Text-to-Speech (edge-tts) |
+| TTS Engine       | Microsoft Edge TTS (edge-tts)            |
 | Audio Processing | FFmpeg, pydub                            |
 | Frontend         | HTML5, CSS3, Bootstrap, Vanilla JS       |
 | File Handling    | Job-based isolation, `/tmp` routing      |
@@ -62,163 +73,97 @@ Instead of aiming for perfect parsing (which is unrealistic), the system is desi
 
 Designed to handle long-running workloads **without freezing the UI or crashing the server**.
 
----
-
 ### 1. Job-Based Isolation
-
-Each upload:
-
-* Gets a unique **job ID**
-* Runs in its own workspace
-* Prevents file conflicts between users
-
----
+- Each upload gets a unique **job ID**
+- Runs in its own workspace
+- Prevents file conflicts between users
 
 ### 2. Asynchronous Background Processing
-
-* Flask immediately returns a response
-* Heavy processing runs in a **background thread**
-* User is redirected to a progress page
-
----
+- Flask immediately responds
+- Heavy work runs in a **background thread**
+- User is redirected to a progress page
 
 ### 3. Chunk-Based Processing
-
-* Extracted text is split into chunks
-* Each chunk is converted into audio
+- Text is split into manageable chunks
+- Each chunk is processed independently
 
 **Why this matters:**
-
-* Prevents large-input failures
-* Improves TTS reliability
-* Enables scalable processing
-
----
+- Prevents large-input failures  
+- Improves TTS reliability  
+- Enables scalability  
 
 ### 4. Real-Time Progress Tracking
-
-* Frontend polls `/status/<job_id>`
-* UI updates dynamically while processing continues
-
----
+- Frontend polls `/status/<job_id>`
+- UI updates dynamically
 
 ### 5. Audio Merge & Cleanup
-
-* All chunks are merged into one audiobook using FFmpeg
-* Temporary files are deleted automatically
-* Only the final output is retained
+- Chunks merged via FFmpeg
+- Temporary files deleted automatically
+- Only final audiobook remains
 
 ---
 
 ## 🧹 PDF Processing Engine (Core Highlight)
 
-This is the most complex and important part of the project.
+Handling real-world PDFs is the hardest part of this project.
 
 ### Capabilities
 
-* 🔁 Detects and removes repeating headers/footers
-* 📚 Filters out Table of Contents pages
-* 🔍 Detects chapters using flexible regex
-* 🔠 Handles spaced text (`C H A P T E R`)
-* ✂️ Fixes hyphenation (`extra-\nordinary → extraordinary`)
-* 🔤 Fixes drop caps (`N early → Nearly`)
-* 🚫 Removes hidden control characters (prevents TTS cutoffs)
-* 🔢 Strips footnote artifacts (`word7 → word`)
+- 🔁 Removes repeating headers/footers  
+- 📚 Filters Table of Contents pages  
+- 🔍 Detects chapters via flexible regex  
+- 🔠 Handles spaced text (`C H A P T E R`)  
+- ✂️ Fixes hyphenation (`extra-\nordinary`)  
+- 🔤 Fixes drop caps (`N early → Nearly`)  
+- 🚫 Removes control characters (prevents TTS cutoffs)  
+- 🔢 Strips footnote artifacts (`word7 → word`)  
 
 ---
 
 ## 🧠 Engineering Challenges & Solutions
 
-### 1. The “Spaced Text” Problem
+### Spaced Text Problem
+Handled stylized text using dynamic regex spacing.
 
-**Challenge:**
-PDFs often use stylized headers like `C H A P T E R  O N E`.
+### Header “Time-Travel” Injection
+Retroactively injects chapter announcements when detected late.
 
-**Solution:**
-Built a dynamic regex generator that tolerates flexible spacing while preserving structure.
-
----
-
-### 2. Header “Time-Travel” Injection
-
-**Challenge:**
-Chapter titles sometimes appear in headers of the *next page*, not where the chapter starts.
-
-**Solution:**
-Implemented a buffer system that **retroactively injects chapter announcements** into the correct page.
-
----
-
-### 3. Noisy PDF Data
-
-**Challenge:**
-Headers, page numbers, and repeated titles pollute the text.
-
-**Solution:**
+### Noisy PDF Data
 Two-stage filtering:
+- Pre-scan for repeated noise  
+- Line-level filtering (avoids content corruption)
 
-* Pre-scan to detect repeating noise
-* Line-level filtering to avoid corrupting real content
+### TTS Stability Issues
+Removed hidden control characters causing silent failures.
 
----
+### Browser Timeout Problem
+Solved via background threading + polling.
 
-### 4. TTS Stability Issues
-
-**Challenge:**
-Hidden control characters caused silent audio cutoffs.
-
-**Solution:**
-Sanitization layer removes non-printable characters before TTS processing.
-
----
-
-### 5. Browser Timeout Problem
-
-**Challenge:**
-Long-running requests break web apps.
-
-**Solution:**
-Background threading + client-side polling.
+### Resource Guards
+- File size limits  
+- Page limits  
+- Controlled chunking  
 
 ---
 
-### 6. Resource & Stability Guards
+## ⚠️ Limitations (Intentional Trade-offs)
 
-**Challenge:**
-Large files can crash servers or break audio merging.
-
-**Solution:**
-
-* File size limits (Flask layer)
-* Page limits (engine layer)
-* Controlled chunking strategy
-
----
-
-## ⚠️ Limitations (Honest & Intentional)
-
-This project prioritizes **practical robustness over perfect accuracy**.
-
-* Chapter detection is heuristic-based:
-
-  * May mislabel or delay detection
-* Some PDFs have unpredictable formatting
-* Optimized for **text-based, single-column PDFs**
-* Does not support scanned/image PDFs (no OCR yet)
-
-These trade-offs were intentional to avoid over-engineering and maintain performance.
+- Chapter detection is heuristic-based  
+  - May mislabel or delay detection  
+- Some PDFs have unpredictable formatting  
+- Optimized for **text-based, single-column PDFs**  
+- No OCR support (image PDFs not supported)
 
 ---
 
 ## 🧪 Testing
 
-* Tested on large PDFs (hundreds of pages)
-* Verified:
-
-  * Correct chunk ordering
-  * Stable audio generation
-  * Successful merging
-* Stress-tested with multiple long documents
+- Tested with large PDFs (hundreds of pages)
+- Verified:
+  - Correct chunk ordering  
+  - Stable audio generation  
+  - Successful merging  
+- Stress-tested with multiple long documents
 
 ---
 
@@ -234,78 +179,69 @@ source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 python app.py
-```
+````
 
 ---
 
 ## 🌐 Usage
 
-1. Open browser at:
+1. Open:
 
-   ```
-   http://127.0.0.1:5000
-   ```
+```
+http://127.0.0.1:5000
+```
+
 2. Upload a PDF
-3. Wait on the progress page
-4. Download the generated audiobook
+3. Wait for processing
+4. Download audiobook
 
 ---
 
 ## 🌐 Deployment
 
-Target platform:
+Platform: Hugging Face Spaces
 
-* Hugging Face Spaces
-
-Key considerations:
-
-* Use `/tmp` for temporary storage
-* Designed for lightweight, low-concurrency usage
+* Uses `/tmp` for temporary storage
+* Designed for low-concurrency usage
 * Automatic cleanup prevents storage issues
 
 ---
 
 ## 🔮 Future Improvements
 
-* Job cancellation (stop processing mid-task)
-* Improved chapter detection accuracy
-* OCR support for scanned PDFs
+* Job cancellation
+* Better chapter detection
+* OCR support
 * Voice customization
-* Progress percentage tracking
-* Optional chapter-based audio splitting
+* Progress percentage
+* Optional chapter splitting
 
 ---
 
 ## 🎯 What This Project Demonstrates
 
 * End-to-end system design
-* Handling real-world messy data
-* Asynchronous processing in web applications
-* File and resource management
-* Debugging complex edge cases
-* Making practical engineering trade-offs
+* Handling messy real-world data
+* Async processing in web apps
+* File/resource management
+* Debugging edge cases
+* Practical engineering trade-offs
 
 ---
 
 ## 💬 Final Notes
 
-This project was built as part of a transition into software development, with a focus on solving real-world problems rather than following tutorials.
-
-It reflects:
-
-* Strong problem-solving ability
-* Iterative development and debugging
-* Practical system design thinking
+Built as part of a transition into software development, focusing on solving **real problems**, not just tutorials.
 
 ---
 
 ## 🔥 For Recruiters / Reviewers
 
-This is not just a script—it is a **complete pipeline**:
+This is a **complete pipeline**:
 
-* Input (PDF) → Processing → Transformation → Output (Audiobook)
+**PDF → Processing → Transformation → Audiobook**
 
-Built with real constraints in mind:
+Built with real-world constraints:
 
 * Performance
 * Stability
