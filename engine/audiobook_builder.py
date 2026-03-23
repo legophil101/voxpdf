@@ -1,13 +1,21 @@
 import os
+import shutil  # Add this for better path detection
 from pydub import AudioSegment
 
-# 1. TELL SYSTEM WHERE FFMPEG LIVES
-ffmpeg_path = r"D:\Programs\ffmpeg\bin"
-os.environ["PATH"] += os.pathsep + ffmpeg_path
+# --- STEP 1: ROBUST PATH DETECTION ---
+if os.name == 'nt':
+    # Windows Local Dev
+    ffmpeg_path = r"D:\Programs\ffmpeg\bin"
+    AudioSegment.converter = os.path.join(ffmpeg_path, "ffmpeg.exe")
+    AudioSegment.ffprobe = os.path.join(ffmpeg_path, "ffprobe.exe")
 
-# 2. TELL PYDUB SPECIFICALLY
-AudioSegment.converter = os.path.join(ffmpeg_path, "ffmpeg.exe")
-AudioSegment.ffprobe = os.path.join(ffmpeg_path, "ffprobe.exe")
+    if ffmpeg_path not in os.environ["PATH"]:
+        os.environ["PATH"] += os.pathsep + ffmpeg_path
+else:
+    # Hugging Face / Linux
+    # We don't define a hard path because Linux finds 'ffmpeg' in /usr/bin automatically
+    AudioSegment.converter = "ffmpeg"
+    AudioSegment.ffprobe = "ffprobe"
 
 
 def build_audiobook(audio_files, output_path):
