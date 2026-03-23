@@ -1,0 +1,268 @@
+/* GENERAL */
+
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen;
+background-color: #f8f9fa;
+color: #222;
+line-height: 1.6;
+}
+
+
+/* HERO */
+.hero {
+    height: 60vh;
+    min-height: 500px; /* Prevents squishing on small screens */
+    background-image: url("/static/hero.jpg");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding-bottom: 100px; /* Pushes content up to make room for the overlapping card */
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.65); /* Slightly darker for better text readability */
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    color: white;
+    max-width: 700px;
+    z-index: 2; /* Ensures text stays above the dark overlay */
+}
+
+.hero h1 {
+    font-weight: 700;
+}
+
+.hero-btn {
+    font-weight: 500;
+    padding: 12px 28px;
+    border-radius: 8px;
+}
+
+/* UPLOAD SECTION */
+.upload-section {
+    position: relative;
+    margin-top: -100px; /* Pulls the card up into the safe zone we created */
+    padding-bottom: 100px;
+    z-index: 10; /* Forces the card to stay on top of the hero section */
+}
+
+.upload-card {
+    background: white;
+    padding: 45px;
+    border-radius: 14px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+    transition: transform .2s ease;
+}
+
+.upload-card:hover {
+    transform: translateY(-4px);
+}
+
+.upload-note {
+    font-size: 0.9rem;
+    color: #777;
+}/* HERO */
+.hero {
+    height: 60vh;
+    min-height: 500px; /* Prevents squishing on small screens */
+    background-image: url("/static/hero.jpg");
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding-bottom: 100px; /* Pushes content up to make room for the overlapping card */
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.65); /* Slightly darker for better text readability */
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    color: white;
+    max-width: 700px;
+    z-index: 2; /* Ensures text stays above the dark overlay */
+}
+
+.hero h1 {
+    font-weight: 700;
+}
+
+.hero-btn {
+    font-weight: 500;
+    padding: 12px 28px;
+    border-radius: 8px;
+}
+
+/* UPLOAD SECTION */
+.upload-section {
+    position: relative;
+    margin-top: -120px; /* Slightly more pull to account for the alert space */
+    padding-bottom: 100px;
+    z-index: 10;
+}
+
+/* Add this to make the alerts look consistent with the card */
+.alert {
+    border-radius: 10px;
+    border: none;
+    background-color: #d1e7dd; /* Light green to match the screenshot */
+    color: #0f5132;
+}
+
+.upload-card {
+    background: white;
+    padding: 45px;
+    border-radius: 14px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.08);
+    transition: transform .2s ease;
+}
+
+.upload-card:hover {
+    transform: translateY(-4px);
+}
+
+.upload-note {
+    font-size: 0.9rem;
+    color: #777;
+}
+
+
+/* FEATURES */
+
+.features {
+
+padding: 70px 0;
+
+background: white;
+
+}
+
+.feature-icon {
+
+font-size: 36px;
+
+margin-bottom: 15px;
+
+color: #212529;
+
+}
+
+
+/* BUTTON */
+
+.btn-dark {
+
+border-radius: 8px;
+
+padding: 10px 20px;
+
+}
+
+.btn-dark:hover {
+
+background-color: black;
+
+}
+
+
+/* FOOTER */
+
+.footer {
+
+padding: 50px 0;
+
+background: #fff;
+
+}
+
+.fa-circle {
+
+color: #212529;
+
+}
+
+
+/* The container for the message */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* The specific Yellow/Warning style */
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+/* Optional: Red/Danger style for actual crashes */
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+
+/* BORROWED FROM CLEAN BLOG */
+
+.footer {
+    padding: 50px 0;
+    background-color: #ffffff;
+}
+
+/* The circular background for icons */
+.fa-stack {
+    height: 2.5em;
+    line-height: 2.5em;
+    width: 2.5em;
+    transition: transform 0.3s ease;
+}
+
+.fa-stack-2x {
+    color: #212529; /* Dark gray/black like the blog */
+    transition: color 0.3s ease;
+}
+
+.fa-stack-1x {
+    color: white !important;
+}
+
+/* The Hover Effect */
+.list-inline-item a:hover .fa-stack-2x {
+    color: #0085A1; /* The signature Clean Blog teal */
+}
+
+.list-inline-item a:hover .fa-stack {
+    transform: scale(1.1); /* Subtle "pop" effect */
+}
+
+.footer .small {
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+
+/* Ensure feature icons don't inherit weird fonts from the body */
+.feature-icon {
+    font-family: "Font Awesome 6 Free" !important;
+    font-size: 42px; /* A bit bigger looks better with the Clean Blog style */
+    margin-bottom: 15px;
+    display: inline-block;
+}

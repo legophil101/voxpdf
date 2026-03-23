@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>PDF → Audiobook Generator</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- HERO SECTION -->
+
+<header class="hero">
+
+<div class="hero-overlay"></div>
+
+<div class="container hero-content text-center">
+
+<h1 class="display-4 fw-bold mb-3">
+Turn PDFs Into Audiobooks
+</h1>
+
+<p class="lead mb-4">
+Upload a PDF and convert it into natural AI speech powered by Microsoft Edge Text-to-Speech.
+Perfect for studying, multitasking, or listening on the go.
+</p>
+
+<a href="#upload" class="btn btn-light btn-lg hero-btn">
+Convert a PDF
+</a>
+
+</div>
+
+</header>
+
+
+<!-- UPLOAD SECTION -->
+<section id="upload" class="upload-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                          <p class="mb-0" style="white-space: pre-wrap;">{{ message }}</p>
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                {% if request.args.get('success') == 'true' %}
+                  <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
+                      <p class="mb-2 text-center">Audiobook generated successfully!</p>
+
+                      <div class="mt-3 text-center">
+                          <audio controls class="w-100 mb-3">
+                            <source src="{{ url_for('download_file', job_id=request.args.get('jid'), filename=request.args.get('file')) }}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                          </audio>
+
+                          <a href="{{ url_for('download_file', job_id=request.args.get('jid'), filename=request.args.get('file')) }}" download class="btn btn-success w-100 shadow-sm">
+                              <i class="fa-solid fa-download me-2"></i> Download MP3
+                          </a>
+                      </div>
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                {% endif %} <div class="upload-card">
+                    <h3 class="text-center mb-4">Upload Your PDF</h3>
+
+
+    <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
+        <input type="file" name="pdf" class="form-control mb-3" accept=".pdf" required>
+        <button type="submit" id="submitBtn" class="btn btn-dark w-100">
+            Convert to Audiobook
+        </button>
+    </form>
+
+    <div id="progressContainer" class="mt-4" style="display: none;">
+        <p class="text-center mb-2 small text-muted">Converting your PDF... This may take a minute.</p>
+        <div class="progress" style="height: 10px;">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+                 role="progressbar"
+                 style="width: 100%"></div>
+        </div>
+        <p class="text-center mt-2 small fst-italic text-secondary" id="statusText">
+            Starting AI voice engine...
+        </p>
+    </div>
+
+    <p class="upload-note text-center mt-3">
+        Supported format: PDF • Recommended size under 5MB
+    </p>
+</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- FEATURES -->
+
+<section class="features">
+
+<div class="container">
+
+<div class="row text-center">
+
+<div class="col-md-4 mb-4">
+
+<i class="fa-solid fa-file-import feature-icon"></i>
+
+<h5>Upload PDF</h5>
+
+<p>
+Upload any readable PDF document and the system extracts the text automatically.
+</p>
+
+</div>
+
+<div class="col-md-4 mb-4">
+
+<i class="fa-solid fa-robot feature-icon"></i>
+
+<h5>AI Speech</h5>
+
+<p>
+Powered by Microsoft Edge Text-to-Speech for natural and high-quality audio.
+</p>
+
+</div>
+
+<div class="col-md-4 mb-4">
+
+<i class="fa-solid fa-headphones feature-icon"></i>
+
+<h5>Listen Anywhere</h5>
+
+<p>
+Download your audiobook and listen while commuting, exercising, or reviewing material.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- FOOTER -->
+
+<footer class="border-top footer">
+
+<div class="container px-4 px-lg-5">
+
+<div class="row gx-4 gx-lg-5 justify-content-center">
+
+<div class="col-md-10 col-lg-8 col-xl-7">
+
+<ul class="list-inline text-center">
+
+<li class="list-inline-item">
+
+<a href="https://x.com/legophil101" target="_blank" rel="noopener noreferrer">
+
+<span class="fa-stack fa-lg">
+
+<i class="fas fa-circle fa-stack-2x"></i>
+
+<i class="fa-brands fa-x-twitter fa-stack-1x fa-inverse"></i>
+
+</span>
+
+</a>
+
+</li>
+
+<li class="list-inline-item">
+
+<a href="https://www.facebook.com/legophil101" target="_blank" rel="noopener noreferrer">
+
+<span class="fa-stack fa-lg">
+
+<i class="fas fa-circle fa-stack-2x"></i>
+
+<i class="fa-brands fa-facebook-f fa-stack-1x fa-inverse"></i>
+
+</span>
+
+</a>
+
+</li>
+
+<li class="list-inline-item">
+
+<a href="https://github.com/legophil101" target="_blank" rel="noopener noreferrer">
+
+<span class="fa-stack fa-lg">
+
+<i class="fas fa-circle fa-stack-2x"></i>
+
+<i class="fa-brands fa-github fa-stack-1x fa-inverse"></i>
+
+</span>
+
+</a>
+
+</li>
+
+</ul>
+
+<div class="small text-center text-muted fst-italic">
+
+&copy; <span id="currentYear"></span> — Made by Philip with ❤️ love and ☕ coffee
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById("uploadForm").onsubmit = function() {
+    // 1. Hide the submit button so they don't click it twice
+    document.getElementById("submitBtn").style.display = "none";
+
+    // 2. Show the progress bar
+    document.getElementById("progressContainer").style.display = "block";
+
+    // 3. (Optional) Rotate some fun status messages every few seconds
+    const statusMessages = [
+        "Reading PDF text...",
+        "Cleaning up extra spaces...",
+        "Slicing text into chunks...",
+        "Sending chunks to AI Voice engine...",
+        "Merging audio files with FFmpeg...",
+        "Almost there! Wrapping up..."
+    ];
+
+    let i = 0;
+    const statusLabel = document.getElementById("statusText");
+    setInterval(() => {
+        if (i < statusMessages.length) {
+            statusLabel.innerText = statusMessages[i];
+            i++;
+        }
+    }, 5000); // Change text every 5 seconds
+};
+
+document.getElementById("currentYear").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
