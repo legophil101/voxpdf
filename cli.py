@@ -27,11 +27,14 @@ from engine.tts_service import process_chunks_parallel
 from engine.audiobook_builder import build_audiobook
 
 
-async def main(input_pdf_path=None, base_output_dir=None):
+async def main(input_pdf_path=None, base_output_dir=None, mode=None, voice=None, progress_callback=None):
     r"""
         Main execution logic.
         Accepts paths explicitly so it can be safely run by a multithreaded web server.
         """
+    print(f"The mode selected in cli.py is {mode}")
+    print(f"The voice selected in cli.py is {voice}")
+
     # 1. Handle defaults for standalone CLI usage vs Web App usage
     if input_pdf_path is None:
         input_pdf_path = os.path.join("uploads", "input.pdf")
@@ -49,7 +52,7 @@ async def main(input_pdf_path=None, base_output_dir=None):
 
     print("📖 Reading PDF...")
     # Your extract_text_from_pdf now handles the scanning and normalization
-    text = extract_text_from_pdf(input_pdf_path)
+    text = extract_text_from_pdf(input_pdf_path, mode)
 
     if not text:
         print("No text found in PDF.")
@@ -67,11 +70,15 @@ async def main(input_pdf_path=None, base_output_dir=None):
     print("✂️ Splitting text into chunks...")
     chunks = split_text(text)
 
+    # --- ADD THIS: Tell the UI we are starting with 0 completed out of X total
+    if progress_callback:
+        progress_callback(0, len(chunks))
+
     # Loop and await the async synthesize_speech function
     print(f"🚀 Starting parallel processing for {len(chunks)} chunks...")
 
     # You need to pass the output_dir so chunks save in the right folder
-    audio_files = await process_chunks_parallel(chunks, output_dir)
+    audio_files = await process_chunks_parallel(chunks, output_dir, voice, update_progress=progress_callback)
 
     print("🏗️ Building final audiobook...")
 

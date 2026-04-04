@@ -82,6 +82,29 @@ Convert a PDF
 
 
     <form id="uploadForm" action="/" method="post" enctype="multipart/form-data">
+        <div class="mb-4">
+        <label class="small text-muted mb-2 d-block text-center fw-bold" style="letter-spacing: 1px;">VOICE PERSONALITY</label>
+        <select class="form-select border-0 bg-light text-center py-2 shadow-sm mx-auto" name="voice_choice" style="border-radius: 10px; max-width: 300px;">
+            <option value="en-US-AvaNeural">Ava (US Female)</option>
+            <option value="en-US-AndrewNeural">Andrew (US Male)</option>
+            <option value="en-GB-SoniaNeural">Sonia (UK Female)</option>
+            <option value="en-GB-ThomasNeural">Thomas (UK Male)</option>
+            <option value="fil-PH-BlessicaNeural">Blessica (PH Female)</option>
+            <option value="fil-PH-AngeloNeural">Angelo (PH Male)</option>
+        </select>
+    </div>
+
+    <div class="d-flex flex-column align-items-center mb-4">
+        <div class="form-check form-switch">
+            <input class="form-check-input mt-1" type="checkbox" id="modeToggle" name="extraction_mode" value="raw">
+            <label class="form-check-label small text-dark fw-semibold" for="modeToggle">
+                <i class="fa-solid fa-wand-sparkles text-primary me-1"></i> Enable Raw Mode
+            </label>
+        </div>
+        <small class="text-muted text-center mt-2" style="max-width: 85%; font-size: 0.85rem;">
+            Use this if your PDF has text very close to the edges (like study notes or dense novels) to prevent text from being cut off.
+        </small>
+    </div>
         <input type="file" name="pdf" class="form-control mb-3" accept=".pdf" required>
         <button type="submit" id="submitBtn" class="btn btn-dark w-100">
             Convert to Audiobook
@@ -241,34 +264,55 @@ Download your audiobook and listen while commuting, exercising, or reviewing mat
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    document.getElementById("uploadForm").onsubmit = function() {
-    // 1. Hide the submit button so they don't click it twice
-    document.getElementById("submitBtn").style.display = "none";
+    document.getElementById("uploadForm").onsubmit = function(e) {
+        const fileInput = document.querySelector('input[type="file"]');
 
-    // 2. Show the progress bar
-    document.getElementById("progressContainer").style.display = "block";
+        // --- THE HUGGING FACE BRIDGE ---
+        if (fileInput.files.length > 0) {
+            const fileSize = fileInput.files[0].size / 1024 / 1024;
+            if (fileSize > 6) {
+                e.preventDefault(); // Stop the upload before HF kills it
 
-    // 3. (Optional) Rotate some fun status messages every few seconds
-    const statusMessages = [
-        "Reading PDF text...",
-        "Cleaning up extra spaces...",
-        "Slicing text into chunks...",
-        "Sending chunks to AI Voice engine...",
-        "Merging audio files with FFmpeg...",
-        "Almost there! Wrapping up..."
-    ];
+                // Manually inject the "Original" Flash Message HTML
+                const alertContainer = document.querySelector('.col-lg-6');
+                // 🔥 THE FIX: Remove any existing alerts before adding a new one
+                const existingAlerts = alertContainer.querySelectorAll('.alert');
+                existingAlerts.forEach(alert => alert.remove());
+                const fakeFlash = `
+                    <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-4" role="alert">
+                        <p class="mb-0" style="white-space: pre-wrap;">File is too large! Maximum limit is 6MB.\nPlease compress your PDF or choose a smaller one.</p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
 
-    let i = 0;
-    const statusLabel = document.getElementById("statusText");
-    setInterval(() => {
-        if (i < statusMessages.length) {
-            statusLabel.innerText = statusMessages[i];
-            i++;
+                alertContainer.insertAdjacentHTML('afterbegin', fakeFlash);
+                return false;
+            }
         }
-    }, 5000); // Change text every 5 seconds
-};
 
-document.getElementById("currentYear").textContent = new Date().getFullYear();
+        // --- YOUR ORIGINAL LOGIC ---
+        document.getElementById("submitBtn").style.display = "none";
+        document.getElementById("progressContainer").style.display = "block";
+
+        const statusMessages = [
+            "Reading PDF text...",
+            "Cleaning up extra spaces...",
+            "Slicing text into chunks...",
+            "Sending chunks to AI Voice engine...",
+            "Merging audio files with FFmpeg...",
+            "Almost there! Wrapping up..."
+        ];
+
+        let i = 0;
+        const statusLabel = document.getElementById("statusText");
+        setInterval(() => {
+            if (i < statusMessages.length) {
+                statusLabel.innerText = statusMessages[i];
+                i++;
+            }
+        }, 5000);
+    };
+
+    document.getElementById("currentYear").textContent = new Date().getFullYear();
 </script>
 
 </body>

@@ -78,9 +78,12 @@ def index():
     # If we redirected back from an error in progress.html
     error_msg = request.args.get("error")
     if error_msg:
-        flash(error_msg)
+        flash(error_msg, "warning")
     if request.method == "POST":
         file = request.files.get("pdf")
+        # Grab mode from form (default to 'clean')
+        selected_mode = request.form.get("extraction_mode", "clean")
+        selected_voice = request.form.get("voice_choice", "en-US-AvaNeural")
 
         if file and file.filename.endswith('.pdf'):
             # 1. Generate a truly unique session ID
@@ -99,11 +102,21 @@ def index():
             active_tasks[session_id] = {"status": "processing", "final_file": None}
 
             # 3. Background worker (Thread-Safe Context)
-            def run_cli_logic(sid, work_dir, pdf_file_path):
+            def run_cli_logic(sid, work_dir, pdf_file_path, mode, voice):
+                print(f"The mode selected in app.py is {mode}")
+                print(f"The voice selected in app.py is {voice}")
+
+                # 🔥 THE BRIDGE: This updates the global dictionary in real-time
+                def update_progress(completed, total):
+                    active_tasks[sid]["completed_chunks"] = completed
+                    active_tasks[sid]["total_chunks"] = total
+
                 try:
                     # NEW: Pass absolute paths directly to main().
                     # No os.chdir() needed. This is completely thread-safe!
-                    inner_job_id = asyncio.run(main(input_pdf_path=pdf_file_path, base_output_dir=work_dir))
+                    inner_job_id = asyncio.run(
+                        main(input_pdf_path=pdf_file_path, base_output_dir=work_dir, mode=mode, voice=voice,
+                             progress_callback=update_progress))
 
                     if not inner_job_id:
                         raise Exception("CLI failed to process the PDF.")
@@ -137,9 +150,12 @@ def index():
 
                     active_tasks[sid]["status"] = "error"
                     active_tasks[sid]["message"] = "An unexpected error occurred during processing."
+                    # This is the 'Yellow' trigger for Flask
+                    flash("An unexpected error occurred during processing.", "warning")
 
             # Start the thread, passing the input_path explicitly
-            threading.Thread(target=run_cli_logic, args=(session_id, job_work_dir, input_path)).start()
+            threading.Thread(target=run_cli_logic,
+                             args=(session_id, job_work_dir, input_path, selected_mode, selected_voice)).start()
 
             return redirect(url_for("progress_page", session_id=session_id))
 

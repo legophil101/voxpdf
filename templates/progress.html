@@ -33,12 +33,12 @@
 
                         <div class="progress mb-3" style="height: 12px;">
                             <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                 role="progressbar" style="width: 100%"></div>
+                                 role="progressbar" style="width: 0%"></div>
                         </div>
 
-                         </p>
                           <p class="text-muted small mb-0" id="statusLabel">
                             <i class="fa-solid fa-microchip me-2"></i> Initializing CLI Engine...
+                          </p>
                  </div>
                 </div>
             </div>
@@ -124,49 +124,43 @@
     <script>
         const sessionId = "{{ session_id }}";
         const statusLabel = document.getElementById("statusLabel");
-
-        // Fun status messages to keep the user engaged
-        const statusMessages = [
-            "Reading PDF text structure...",
-            "Cleaning up extra spaces and noise...",
-            "Slicing text into manageable chunks...",
-            "Sending chunks to Microsoft Edge TTS...",
-            "Parallel voice synthesis in progress...",
-            "Merging audio files with FFmpeg...",
-            "Finalizing your MP3 file..."
-        ];
-
-        let msgIndex = 0;
-        setInterval(() => {
-            if (msgIndex < statusMessages.length) {
-                statusLabel.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> ${statusMessages[msgIndex]}`;
-                msgIndex++;
-            }
-        }, 6000);
+        const progressBar = document.getElementById("progressBar");
 
         function checkStatus() {
-            // Pings the app.py route we created earlier
             fetch(`/status/${sessionId}`)
                 .then(response => response.json())
                 .then(data => {
+                    // Update the visual bar based on actual chunks completed
+                    if (data.total_chunks && data.total_chunks > 0) {
+                        let percentage = Math.round((data.completed_chunks / data.total_chunks) * 100);
+
+                        // Cap at 95% while FFmpeg is merging the final file
+                        if (data.status === "processing") {
+                            percentage = Math.min(percentage, 95);
+                        }
+
+                        progressBar.style.width = percentage + "%";
+                        statusLabel.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-2"></i> Processed ${data.completed_chunks} of ${data.total_chunks} audio segments...`;
+                    }
+
                     if (data.status === "completed") {
-                        // Redirect back to home with success params to trigger the download UI
-                        window.location.href = `/?success=true&file=${data.final_file}&jid=${data.job_id}`;
+                        progressBar.style.width = "100%";
+                        statusLabel.innerHTML = "🎉 Audio merged! Redirecting...";
+                        setTimeout(() => {
+                            window.location.href = `/?success=true&file=${data.final_file}&jid=${data.job_id}`;
+                        }, 1000);
                     } else if (data.status === "error") {
-                        // Redirect back to index with the error message in the URL
                         window.location.href = "/?error=" + encodeURIComponent(data.message);
                     } else {
-                        // Poll every 3 seconds
-                        setTimeout(checkStatus, 3000);
+                        setTimeout(checkStatus, 1500); // Fast 1.5s polling for smooth bar movement
                     }
                 })
                 .catch(err => {
                     console.error("Status check failed:", err);
-                    setTimeout(checkStatus, 5000);
+                    setTimeout(checkStatus, 3000);
                 });
         }
 
-        // Start polling
         checkStatus();
         document.getElementById("currentYear").textContent = new Date().getFullYear();
     </script>
