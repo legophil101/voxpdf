@@ -233,8 +233,8 @@ def extract_text_from_pdf(pdf_path, mode="clean"):
                 # =================================================================
                 # Dynamic Percentage Margins (8% of page height)
                 if mode == "clean":
-                    top_margin_val = page.height * 0.12
-                    bottom_margin_val = page.height * 0.10
+                    top_margin_val = page.height * 0.08  # Dropped from 12% to 8%
+                    bottom_margin_val = page.height * 0.08  # Dropped from 10% to 8%
 
                     safe_bbox = (0, top_margin_val, page.width, page.height - bottom_margin_val)
                     main_body = page.within_bbox(safe_bbox)
